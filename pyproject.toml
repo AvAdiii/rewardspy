@@ -1,0 +1,75 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rewardspy"
+version = "0.1.0"
+description = "A plug-in debugger and visualizer for RL reward functions. Detects reward hacking before it derails your training run."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "rewardspy contributors" }]
+keywords = [
+    "reinforcement-learning",
+    "rlhf",
+    "grpo",
+    "reward-hacking",
+    "observability",
+    "debugging",
+    "tui",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Debuggers",
+]
+dependencies = [
+    "textual>=0.50.0",
+    "rich>=13.0.0",
+    "click>=8.0.0",
+]
+
+[project.optional-dependencies]
+trl = ["trl>=0.8.0"]
+wandb = ["wandb>=0.16.0"]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.4.0",
+    "mypy>=1.8",
+]
+
+[project.urls]
+Homepage = "https://github.com/AvAdiii/rewardspy"
+Repository = "https://github.com/AvAdiii/rewardspy"
+Issues = "https://github.com/AvAdiii/rewardspy/issues"
+
+[project.scripts]
+rewardspy = "rewardspy.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["rewardspy"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "W"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.mypy]
+python_version = "3.10"
+warn_unused_ignores = true
+ignore_missing_imports = true
