@@ -7,6 +7,10 @@ Detects reward hacking before it derails your training run.
 
 One import. Zero boilerplate.
 
+[![CI](https://github.com/AvAdiii/rewardspy/actions/workflows/ci.yml/badge.svg)](https://github.com/AvAdiii/rewardspy/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](pyproject.toml)
+
 </div>
 
 ![The rewardspy dashboard catching a reward hack live](docs/demo.gif)
