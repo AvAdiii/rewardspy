@@ -25,7 +25,7 @@ from rich.table import Table
 
 from . import __version__
 from .detectors import DetectionEngine
-from .exporters import JSONLExporter, read_jsonl, write_csv
+from .exporters import JSONLExporter, read_jsonl, write_csv, write_parquet
 from .records import RolloutRecord
 from .store import MetricStore
 from .tui.render import diagnosis
@@ -160,19 +160,21 @@ def audit(path: str, window: int, sensitivity: str, max_reward: float | None) ->
 @click.option(
     "--format",
     "fmt",
-    type=click.Choice(["csv", "jsonl"]),
+    type=click.Choice(["csv", "jsonl", "parquet"]),
     default="csv",
     show_default=True,
 )
 @click.option("--last", default=None, type=int, help="Only the last N records.")
 def export(path: str, output: str, fmt: str, last: int | None) -> None:
-    """Convert a JSONL log to CSV or a trimmed JSONL file."""
+    """Convert a JSONL log to CSV, Parquet, or a trimmed JSONL file."""
     records = read_jsonl(path)
     if last is not None:
         records = records[-last:]
 
     if fmt == "csv":
         write_csv(records, output)
+    elif fmt == "parquet":
+        write_parquet(records, output)
     else:
         with JSONLExporter(output, mode="w") as exporter:
             exporter.write_many(records)

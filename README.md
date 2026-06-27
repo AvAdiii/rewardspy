@@ -96,7 +96,7 @@ terminal:
 rewardspy show    logs/run.jsonl --follow    # live dashboard
 rewardspy summary logs/run.jsonl --last 500  # text summary + verdict
 rewardspy audit   logs/run.jsonl             # verdict, non-zero exit if flagged
-rewardspy export  logs/run.jsonl -o out.csv  # convert to CSV
+rewardspy export  logs/run.jsonl -o out.csv  # convert to CSV (or --format parquet)
 rewardspy probe   my_module:reward_fn -p cases.json   # try a reward fn offline
 ```
 
@@ -115,6 +115,7 @@ from rewardspy.integrations import wandb as rspy_wandb
 - **Weights & Biases**: log rewardspy metrics and alerts next to your curves.
 
 Install extras with `pip install rewardspy[trl]` or `pip install rewardspy[wandb]`.
+Parquet export needs `pip install rewardspy[parquet]`.
 
 ## Examples
 

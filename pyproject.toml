@@ -40,9 +40,11 @@ dependencies = [
 [project.optional-dependencies]
 trl = ["trl>=0.8.0"]
 wandb = ["wandb>=0.16.0"]
+parquet = ["pyarrow>=14.0.0"]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
+    "pyarrow>=14.0.0",
     "ruff>=0.4.0",
     "mypy>=1.8",
 ]
