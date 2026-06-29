@@ -25,6 +25,7 @@ ALERT = "#ff5c7a"
 
 # Block ramp for bars, empty to full.
 BLOCKS = " ▁▂▃▄▅▆▇█"
+ASCII_BLOCKS = " .:-=+*#@"
 
 _STATUS = {
     "OK": ("✓", OK),

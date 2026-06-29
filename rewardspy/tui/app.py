@@ -64,11 +64,20 @@ class Panel(Static):
     width, or the width and height (for the chart).
     """
 
-    def __init__(self, store: MetricStore, render_fn, title: str, mode: str = "plain", **kw):
+    def __init__(
+        self,
+        store: MetricStore,
+        render_fn,
+        title: str,
+        mode: str = "plain",
+        ascii_charts: bool = False,
+        **kw,
+    ):
         super().__init__(**kw)
         self.store = store
         self.render_fn = render_fn
         self.mode = mode
+        self.ascii_charts = ascii_charts
         self.border_title = title
 
     def refresh_panel(self) -> None:
@@ -76,7 +85,7 @@ class Panel(Static):
         height = max(self.content_size.height, 4)
         try:
             if self.mode == "chart":
-                self.update(self.render_fn(self.store, width, height))
+                self.update(self.render_fn(self.store, width, height, ascii=self.ascii_charts))
             elif self.mode == "width":
                 self.update(self.render_fn(self.store, width))
             else:
@@ -98,10 +107,13 @@ class RewardSpyApp(App):
         ("a", "clear_alerts", "Clear alerts"),
     ]
 
-    def __init__(self, store: MetricStore, interval: float = 0.5) -> None:
+    def __init__(
+        self, store: MetricStore, interval: float = 0.5, ascii_charts: bool = False
+    ) -> None:
         super().__init__()
         self.store = store
         self.interval = interval
+        self.ascii_charts = ascii_charts
         self._start_time = time.time()
 
     def compose(self) -> ComposeResult:
@@ -114,7 +126,8 @@ class RewardSpyApp(App):
             yield Panel(self.store, render.hack_status, "Hack status",
                         id="hack", classes="panel")
             yield Panel(self.store, render.reward_curve, "Reward curve",
-                        mode="chart", id="curve", classes="panel")
+                        mode="chart", ascii_charts=self.ascii_charts,
+                        id="curve", classes="panel")
         with Horizontal(id="row-mid"):
             yield Panel(self.store, render.component_bars, "Components",
                         mode="width", id="components", classes="panel")
