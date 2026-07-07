@@ -12,9 +12,10 @@ for statistical analysis. The full history is persisted by the exporters.
 from __future__ import annotations
 
 import math
+import time
 from collections import deque
 
-from .records import Alert, RolloutRecord
+from .records import Alert, EvalPoint, RolloutRecord
 from .stats import RunningStats
 
 
@@ -58,6 +59,7 @@ class MetricStore:
         self.name = name
         self.window_size = window_size
         self.records: deque[RolloutRecord] = deque(maxlen=max_records)
+        self.eval_history: deque[EvalPoint] = deque(maxlen=1_000)
         self.alerts: list[Alert] = []
         self.step_counter: int = 0
         # Set by DetectionEngine so consumers like the dashboard can find it.
@@ -105,6 +107,27 @@ class MetricStore:
 
     def add_alert(self, alert: Alert) -> None:
         self.alerts.append(alert)
+
+    def log_eval(self, value: float, step: int | None = None) -> EvalPoint:
+        """Record a held-out evaluation score for divergence detection.
+
+        Call this from a periodic eval that measures the true objective the
+        reward stands in for, on data the reward signal never touches. The
+        proxy reward mean is snapshotted now, so the divergence detector can
+        compare the two trends. If a detection engine is attached, it runs once
+        so a fresh eval can raise an alert immediately.
+        """
+        point = EvalPoint(
+            step=self.step_counter if step is None else int(step),
+            timestamp=time.time(),
+            value=float(value),
+            reward_mean=self.rolling_mean,
+        )
+        self.eval_history.append(point)
+        engine = self.engine
+        if engine is not None:
+            engine.process()  # type: ignore[attr-defined]
+        return point
 
     # -- rolling reads (O(1)) --------------------------------------------------
 

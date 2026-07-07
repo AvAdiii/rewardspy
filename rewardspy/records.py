@@ -34,6 +34,25 @@ class RolloutRecord:
 
 
 @dataclass(slots=True)
+class EvalPoint:
+    """One held-out evaluation score logged by the user.
+
+    ``value`` is the score on the true objective the reward stands in for,
+    something the reward signal never touches. ``reward_mean`` snapshots the
+    rolling proxy reward at log time so the divergence detector can compare the
+    two trends without re-aligning sparse eval points to dense reward calls.
+    """
+
+    step: int
+    timestamp: float
+    value: float
+    reward_mean: float
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(slots=True)
 class Alert:
     """A finding raised by a detector when a record or window looks suspicious.
 

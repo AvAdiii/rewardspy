@@ -24,6 +24,20 @@ A named group of watched reward functions sharing configuration. Use
 `session.watch(...)` exactly like `watch`. Each watched function gets its own
 store in `session.stores` and engine in `session.engines`.
 
+## `rewardspy.log_eval(target, value, step=None)`
+
+Log a held-out evaluation score against a watched reward function, for the
+proxy-vs-held-out divergence detector. `target` may be the watched function, its
+`MetricStore`, or its registered name. `value` is a score from a periodic eval on
+the true objective the reward never optimizes. Returns the recorded `EvalPoint`.
+Equivalent to `store.log_eval(value, step=None)` on the store directly.
+
+```python
+reward_fn = rewardspy.watch(my_reward_fn)
+# ... every so often, evaluate on held-out data the reward never sees ...
+rewardspy.log_eval(reward_fn, heldout_accuracy)
+```
+
 ## `rewardspy.show(target=None, *, interval=0.5)`
 
 Launch the live dashboard. `target` may be a `MetricStore`, a watched function,
@@ -35,7 +49,8 @@ function in the process, it is found automatically.
 In-memory time-series with O(1) rolling statistics over a sliding window.
 Key members: `rolling_mean`, `rolling_std`, `rolling_variance`, `percentile(q)`,
 `ceiling_rate(ceiling)`, `observed_min`, `observed_max`, `recent(n)`,
-`baseline_std(fraction)`, `records`, `alerts`, `component_stats`.
+`baseline_std(fraction)`, `records`, `alerts`, `component_stats`,
+`log_eval(value, step=None)`, `eval_history`.
 
 ## Exporters
 
@@ -57,6 +72,8 @@ Key members: `rolling_mean`, `rolling_std`, `rolling_variance`, `percentile(q)`,
   `components`, `call_duration_ms`, `input_length`, `output_length`.
 - `rewardspy.Alert`: `step`, `timestamp`, `detector`, `status`, `message`,
   `detail`, `severity`.
+- `EvalPoint`: `step`, `timestamp`, `value`, `reward_mean`. One held-out eval
+  score with the proxy reward snapshotted at log time.
 
 ## Integrations
 

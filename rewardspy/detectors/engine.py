@@ -16,6 +16,7 @@ from ..store import MetricStore
 from .base import BaseDetector, DetectionResult, Status
 from .ceiling import CeilingRateDetector
 from .components import ComponentDominanceDetector
+from .divergence import ProxyEvalDivergenceDetector
 from .length import LengthDriftDetector
 from .slope import RewardSlopeChangeDetector
 from .variance import VarianceCollapseDetector
@@ -40,6 +41,7 @@ class DetectionEngine:
             ComponentDominanceDetector(sensitivity),
             CeilingRateDetector(sensitivity, max_reward=max_reward),
             LengthDriftDetector(sensitivity),
+            ProxyEvalDivergenceDetector(sensitivity),
         ]
         self.latest: dict[str, DetectionResult] = {
             d.name: DetectionResult.insufficient_data() for d in self.detectors

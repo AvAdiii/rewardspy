@@ -16,13 +16,14 @@ from rich.text import Text
 from ..store import MetricStore
 from . import theme
 
-_DETECTOR_ORDER = ["variance", "slope", "component", "ceiling", "length"]
+_DETECTOR_ORDER = ["variance", "slope", "component", "ceiling", "length", "divergence"]
 _DETECTOR_LABELS = {
     "variance": "Variance",
     "slope": "Slope",
     "component": "Component",
     "ceiling": "Ceiling",
     "length": "Length",
+    "divergence": "Divergence",
 }
 
 
@@ -130,6 +131,8 @@ def diagnosis(store: MetricStore) -> Text:
     out.append(f"{glyph} {headline}\n", style=f"bold {color}")
 
     reasons: list[str] = []
+    if "divergence" in actionable:
+        reasons.append("your held-out eval is not tracking the reward")
     if "ceiling" in actionable:
         reasons.append(f"~{_ceiling_rate(store):.0%} of rollouts are at the reward ceiling")
     if "variance" in actionable:

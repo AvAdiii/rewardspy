@@ -6,6 +6,15 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Proxy vs held-out objective divergence detection. Log a held-out eval score
+  with `rewardspy.log_eval(reward_fn, score)` (or `store.log_eval`) and the new
+  divergence detector alerts when the proxy reward climbs while the held-out
+  score stays flat or falls, the one reward-hacking signal that does not live in
+  the reward's own distribution.
+- `EvalPoint` record and `MetricStore.eval_history`.
+
 ## [0.1.0]
 
 Initial release.

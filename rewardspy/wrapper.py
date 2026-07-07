@@ -29,7 +29,7 @@ from uuid import uuid4
 
 from .detectors import DetectionEngine
 from .exporters import JSONLExporter
-from .records import Alert, RolloutRecord
+from .records import Alert, EvalPoint, RolloutRecord
 from .store import MetricStore
 
 # Process-wide registry so the CLI and TUI can discover live stores by name.
@@ -44,6 +44,35 @@ def registered_stores() -> dict[str, MetricStore]:
 
 def get_store(name: str) -> MetricStore | None:
     return _REGISTRY.get(name)
+
+
+def _resolve_store(target: Any) -> MetricStore | None:
+    """Find the store behind a watched function, a store, or a name."""
+    if isinstance(target, MetricStore):
+        return target
+    store = getattr(target, "store", None) or getattr(target, "_rewardspy_store", None)
+    if isinstance(store, MetricStore):
+        return store
+    if isinstance(target, str):
+        return get_store(target)
+    return None
+
+
+def log_eval(target: Any, value: float, step: int | None = None) -> EvalPoint:
+    """Log a held-out evaluation score against a watched reward function.
+
+    ``target`` is the wrapped reward function, its store, or its name. The score
+    should come from a periodic eval on the true objective that the reward never
+    optimizes; the divergence detector then flags the reward climbing while this
+    score stays flat or falls. See ``MetricStore.log_eval``.
+    """
+    store = _resolve_store(target)
+    if store is None:
+        raise ValueError(
+            "log_eval() could not find a store for the given target; pass a "
+            "watched reward function, a MetricStore, or a registered name."
+        )
+    return store.log_eval(value, step=step)
 
 
 def _register(name: str, store: MetricStore) -> str:

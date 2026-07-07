@@ -83,9 +83,31 @@ def reward(response, answer):
 - **Reward slope breaks**: a sudden strategy switch, via CUSUM change-point detection.
 - **Ceiling saturation**: most rollouts hit the maximum possible reward.
 - **GRPO group collapse**: within-group reward variance hits zero (no learning signal).
+- **Proxy vs held-out divergence**: the reward climbs while a held-out eval on the
+  true objective stays flat or falls. Feed the eval in with `rewardspy.log_eval`.
 
 See [docs/detectors.md](docs/detectors.md) for the math behind each one and
 [docs/hack_patterns.md](docs/hack_patterns.md) for a gallery of real patterns.
+
+## What it can't catch
+
+Be clear with yourself about what these indicators can and can't do. Variance
+collapse, length drift, slope changes, and component imbalance are all symptoms
+in the reward's own distribution. A clean exploit can keep that distribution
+looking perfectly healthy while the policy games something you never meant to
+reward, and those detectors will stay green.
+
+The signal you actually want is the gap between the proxy reward climbing and the
+true objective not moving, and that gap does not live in the reward stats at all.
+Reward hacking is ultimately a specification problem: the optimizer is doing its
+job on a proxy you under-specified. The only reliable catch is an out-of-sample
+read on the real outcome.
+
+So pair rewardspy with a held-out eval on the thing you actually care about,
+something the reward can't directly optimize, and feed the score in with
+`rewardspy.log_eval(reward_fn, score)`. The divergence detector then alerts when
+the two pull apart. Treat the distribution detectors as fast, free early
+warnings, not as a substitute for that eval.
 
 ## Command line
 
@@ -128,6 +150,7 @@ Runnable demos in [`examples/`](examples):
 | `detect_hacking.py` | A gamed reward; the dashboard turns red and explains it. |
 | `grpo_math.py` | GRPO with `GRPOSpy`, catching group collapse. |
 | `trl_integration.py` | A TRL-style batch reward with a verbosity hack. |
+| `heldout_eval.py` | A hack the reward stats miss, caught by `log_eval` divergence. |
 
 Run `healthy_training.py` and `detect_hacking.py` back to back to see the
 contrast.
@@ -138,7 +161,7 @@ Three layers, usable independently:
 
 1. **Wrapper**: intercepts every call, captures timing and components, never
    changes the return value.
-2. **Metrics and detectors**: O(1) rolling statistics and five independent hack
+2. **Metrics and detectors**: O(1) rolling statistics and six independent hack
    detectors.
 3. **Dashboard, CLI, and exporters**: display and persistence.
 

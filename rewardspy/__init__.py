@@ -15,7 +15,7 @@ from .detectors import DetectionEngine, DetectionResult, Status
 from .exporters import JSONLExporter, read_jsonl, write_csv
 from .records import Alert, RolloutRecord
 from .store import MetricStore
-from .wrapper import Session, get_store, registered_stores, watch
+from .wrapper import Session, get_store, log_eval, registered_stores, watch
 
 __version__ = "0.1.0"
 
@@ -32,6 +32,7 @@ def show(target: Any = None, *, interval: float = 0.5) -> None:
 __all__ = [
     "watch",
     "Session",
+    "log_eval",
     "show",
     "MetricStore",
     "RolloutRecord",
