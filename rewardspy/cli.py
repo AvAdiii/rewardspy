@@ -88,6 +88,11 @@ def main() -> None:
 @click.option("--sensitivity", default="medium", type=click.Choice(["low", "medium", "high"]))
 @click.option("--max-reward", type=float, default=None, help="Known reward ceiling.")
 @click.option("--interval", default=0.5, show_default=True, help="Refresh seconds.")
+@click.option(
+    "--ascii-charts",
+    is_flag=True,
+    help="Use plain ASCII chart glyphs for terminals without block/box drawing support.",
+)
 def show(
     path: str,
     follow: bool,
@@ -95,6 +100,7 @@ def show(
     sensitivity: str,
     max_reward: float | None,
     interval: float,
+    ascii_charts: bool,
 ) -> None:
     """Launch the dashboard for a JSONL log."""
     from .tui.app import RewardSpyApp
@@ -106,12 +112,12 @@ def show(
         thread = threading.Thread(target=_tail, args=(Path(path), store, engine, stop), daemon=True)
         thread.start()
         try:
-            RewardSpyApp(store, interval=interval).run()
+            RewardSpyApp(store, interval=interval, ascii_charts=ascii_charts).run()
         finally:
             stop.set()
     else:
         store, _ = _load_store(path, window, sensitivity, max_reward=max_reward)
-        RewardSpyApp(store, interval=interval).run()
+        RewardSpyApp(store, interval=interval, ascii_charts=ascii_charts).run()
 
 
 @main.command()

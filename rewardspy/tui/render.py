@@ -90,13 +90,13 @@ def _ceiling_rate(store: MetricStore) -> float:
     return store.ceiling_rate(ceiling) if ceiling > 0 else 0.0
 
 
-def sparkline(values: list[float], width: int = 40) -> str:
+def sparkline(values: list[float], width: int = 40, ascii: bool = False) -> str:
     if not values:
         return ""
     sampled = _resample(values, width)
     low, high = min(sampled), max(sampled)
     span = high - low or 1.0
-    ramp = theme.BLOCKS
+    ramp = theme.ASCII_BLOCKS if ascii else theme.BLOCKS
     return "".join(
         ramp[min(len(ramp) - 1, int((v - low) / span * (len(ramp) - 1)))] for v in sampled
     )
@@ -199,7 +199,7 @@ def _rolling_series(values: list[float], window: int) -> list[float]:
     return out
 
 
-def reward_curve(store: MetricStore, width: int = 60, height: int = 8) -> Text:
+def reward_curve(store: MetricStore, width: int = 60, height: int = 8, ascii: bool = False) -> Text:
     """A smoothed block area chart of the reward trend with a value gutter.
 
     Block characters render cleanly in any terminal font, unlike braille. The
@@ -212,10 +212,16 @@ def reward_curve(store: MetricStore, width: int = 60, height: int = 8) -> Text:
 
     cols = max(width - 8, 8)  # 6 label cols + axis + one col of slack
     rows = max(height - 2, 3)  # leave room for the axis line and footer
-    return _area_chart(values, cols, rows, store.step_counter)
+    return _area_chart(values, cols, rows, store.step_counter, ascii=ascii)
 
 
-def _area_chart(values: list[float], cols: int, rows: int, last_step: int) -> Text:
+def _area_chart(
+    values: list[float],
+    cols: int,
+    rows: int,
+    last_step: int,
+    ascii: bool = False,
+) -> Text:
     window = max(20, len(values) // 20)
     series = _smooth(_resample(_rolling_series(values, window), cols), 3)
     low, high = min(series), max(series)
@@ -223,6 +229,11 @@ def _area_chart(values: list[float], cols: int, rows: int, last_step: int) -> Te
 
     units = rows * 8  # eighth-block vertical resolution
     levels = [(v - low) / span * units for v in series]
+    ramp = theme.ASCII_BLOCKS if ascii else theme.BLOCKS
+    axis = "|" if ascii else "│"
+    corner = "+" if ascii else "└"
+    dash = "-" if ascii else "─"
+    fill = "#" if ascii else "█"
 
     out = Text()
     for r in range(rows - 1, -1, -1):
@@ -233,17 +244,17 @@ def _area_chart(values: list[float], cols: int, rows: int, last_step: int) -> Te
         else:
             label = " " * 6
         out.append(label, style=theme.DIM)
-        out.append("│", style=theme.DIM)
+        out.append(axis, style=theme.DIM)
         for level in levels:
             cell = level - r * 8
             if cell >= 8:
-                out.append("█", style=theme.CURVE_FILL)
+                out.append(fill, style=theme.CURVE_FILL)
             elif cell > 0:
-                out.append(theme.BLOCKS[max(1, min(7, int(cell)))], style=theme.CURVE)
+                out.append(ramp[max(1, min(len(ramp) - 1, int(cell)))], style=theme.CURVE)
             else:
                 out.append(" ")
         out.append("\n")
-    out.append(" " * 6 + "└" + "─" * cols + "\n", style=theme.DIM)
+    out.append(" " * 6 + corner + dash * cols + "\n", style=theme.DIM)
     out.append(f"{'step 0':>6}{'step ' + format(last_step, ','):>{cols + 1}}", style=theme.MUTED)
     return out
 

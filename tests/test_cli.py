@@ -132,3 +132,9 @@ def test_help_lists_commands():
     assert result.exit_code == 0
     for command in ("show", "summary", "audit", "export", "probe"):
         assert command in result.output
+
+
+def test_show_help_lists_ascii_charts_option():
+    result = CliRunner().invoke(main, ["show", "--help"])
+    assert result.exit_code == 0
+    assert "--ascii-charts" in result.output

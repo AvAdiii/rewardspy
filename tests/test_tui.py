@@ -33,6 +33,13 @@ def test_sparkline_length_and_charset():
     assert all(ch in render.theme.BLOCKS for ch in line)
 
 
+def test_sparkline_ascii_mode_uses_ascii_ramp():
+    line = render.sparkline([0, 1, 2, 3, 4, 5, 6, 7, 8], width=9, ascii=True)
+    assert len(line) == 9
+    assert all(ord(ch) < 128 for ch in line)
+    assert all(ch in render.theme.ASCII_BLOCKS for ch in line)
+
+
 def test_curve_empty_store_shows_placeholder():
     out = render_to_text(render.reward_curve(MetricStore("e"), width=40, height=6))
     assert "Waiting" in out
@@ -44,6 +51,16 @@ def test_curve_renders_multiple_rows():
         store.append(_rec(i, (i % 10) / 10.0))
     out = render_to_text(render.reward_curve(store, width=50, height=8))
     assert out.count("\n") >= 8
+
+
+def test_curve_ascii_mode_uses_plain_chart_glyphs():
+    store = MetricStore("ascii")
+    for i in range(60):
+        store.append(_rec(i, (i % 10) / 10.0))
+    out = render_to_text(render.reward_curve(store, width=50, height=8, ascii=True))
+    assert out.count("\n") >= 8
+    assert all(ord(ch) < 128 for ch in out)
+    assert "+" in out and "-" in out and "|" in out
 
 
 def test_overview_shows_stats():
