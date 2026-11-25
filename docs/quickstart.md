@@ -9,8 +9,8 @@ pip install rewardspy
 Optional extras:
 
 ```bash
-pip install rewardspy[trl]     # TRL integration
-pip install rewardspy[wandb]   # Weights & Biases integration
+pip install "rewardspy[trl]"     # TRL integration
+pip install "rewardspy[wandb]"   # Weights & Biases integration
 ```
 
 ## Wrap a reward function
