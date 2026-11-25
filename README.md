@@ -136,8 +136,8 @@ from rewardspy.integrations import wandb as rspy_wandb
 - **TRL**: `watch_trl` wraps a batch reward function for `GRPOTrainer`.
 - **Weights & Biases**: log rewardspy metrics and alerts next to your curves.
 
-Install extras with `pip install rewardspy[trl]` or `pip install rewardspy[wandb]`.
-Parquet export needs `pip install rewardspy[parquet]`.
+Install extras with `pip install "rewardspy[trl]"` or `pip install "rewardspy[wandb]"`.
+Parquet export needs `pip install "rewardspy[parquet]"`.
 
 ## Examples
 
