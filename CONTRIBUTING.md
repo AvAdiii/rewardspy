@@ -32,8 +32,8 @@ rewardspy/
   records.py        RolloutRecord and Alert dataclasses
   store.py          MetricStore with rolling statistics
   stats.py          Welford online statistics
-  detectors/        the five detectors plus the engine
-  exporters/        JSONL and CSV
+  detectors/        the six detectors plus the engine
+  exporters/        JSONL, CSV, and Parquet
   tui/              the Textual dashboard
   integrations/     GRPO, TRL, W&B
   cli.py            the command line interface

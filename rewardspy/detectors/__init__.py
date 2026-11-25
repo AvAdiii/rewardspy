@@ -1,6 +1,6 @@
 """The reward hacking detection engine.
 
-Five independent detectors, each reporting OK / WARNING / ALERT, coordinated by
+Six independent detectors, each reporting OK / WARNING / ALERT, coordinated by
 ``DetectionEngine``. See each module for the heuristic and its math.
 """
 
